@@ -1,13 +1,13 @@
-//! Integration tests for irys-cv-display traits.
+//! Integration tests for fovea-display traits.
 //!
 //! These tests verify the end-to-end pipeline from image creation through
 //! display strategy application to final `u32` framebuffer values, as well
 //! as the `TextureSource` blanket implementations.
 
-use irys_cv::Rectangle;
-use irys_cv::image::{Image, ImageArray, ImageView, ImageViewMut, SubView};
-use irys_cv::pixel::{Bgra8, Mono8, Mono16, MonoF32, RgbF32, Rgba8, RgbaF32, Srgb8, Srgba8};
-use irys_cv_display::{
+use fovea::Rectangle;
+use fovea::image::{Image, ImageArray, ImageView, ImageViewMut, SubView};
+use fovea::pixel::{Bgra8, Mono8, Mono16, MonoF32, RgbF32, Rgba8, RgbaF32, Srgb8, Srgba8};
+use fovea_display::{
     AutoContrast, DisplayPixel, DisplayStrategy, FixedRange, Identity, LinearToDisplay,
     TextureFormat, TextureSource,
 };

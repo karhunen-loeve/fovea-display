@@ -1,7 +1,7 @@
 //! Display strategies: named conversions from pixel types to `Srgba8`.
 //!
 //! Every pixel type requires an explicit [`DisplayStrategy`] to become
-//! displayable. This follows irys-cv's core philosophy: conversions are
+//! displayable. This follows fovea's core philosophy: conversions are
 //! named, data loss never happens silently.
 //!
 //! # Strategies
@@ -16,20 +16,20 @@
 //! # Examples
 //!
 //! ```
-//! use irys_cv::pixel::Srgba8;
-//! use irys_cv_display::{DisplayStrategy, Identity};
+//! use fovea::pixel::Srgba8;
+//! use fovea_display::{DisplayStrategy, Identity};
 //!
 //! let px = Srgba8::new(128, 64, 200, 255);
 //! let out = Identity.to_display(&px);
 //! assert_eq!(out, px);
 //! ```
 
-use irys_cv::image::ImageView;
-use irys_cv::pixel::{
+use fovea::image::ImageView;
+use fovea::pixel::{
     Bgr8, Bgra8, Mono, Mono8, Mono16, Mono32, Mono64, MonoF32, MonoF64, Rgb8, RgbF32, Rgba8,
     RgbaF32, Srgb8, SrgbMono8, SrgbMonoA8, Srgba8,
 };
-use irys_cv::transform::{ConvertPixel, SrgbGamma};
+use fovea::transform::{ConvertPixel, SrgbGamma};
 
 use crate::pixel::DisplayPixel;
 
@@ -39,7 +39,7 @@ use crate::pixel::DisplayPixel;
 
 /// Named conversion from any pixel type to [`Srgba8`] for display.
 ///
-/// This follows irys-cv Philosophy #4: conversions are named, data loss
+/// This follows fovea Philosophy #4: conversions are named, data loss
 /// never happens silently. Every pixel type requires an explicit strategy
 /// to become displayable.
 ///
@@ -50,7 +50,7 @@ use crate::pixel::DisplayPixel;
 /// This is intentionally separate from [`ConvertPixel<P, Srgba8>`]. See
 /// the TODO.md "Why not reuse `ConvertPixel`?" section for rationale.
 ///
-/// [`ConvertPixel<P, Srgba8>`]: irys_cv::transform::ConvertPixel
+/// [`ConvertPixel<P, Srgba8>`]: fovea::transform::ConvertPixel
 pub trait DisplayStrategy<P: Copy> {
     /// Convert a single pixel to display-ready [`Srgba8`].
     fn to_display(&self, pixel: &P) -> Srgba8;
@@ -68,8 +68,8 @@ pub trait DisplayStrategy<P: Copy> {
 /// # Examples
 ///
 /// ```
-/// use irys_cv::pixel::{Srgba8, Srgb8, SrgbMono8, SrgbMonoA8};
-/// use irys_cv_display::{DisplayStrategy, Identity};
+/// use fovea::pixel::{Srgba8, Srgb8, SrgbMono8, SrgbMonoA8};
+/// use fovea_display::{DisplayStrategy, Identity};
 ///
 /// // Srgba8 pass-through
 /// let px = Srgba8::new(100, 150, 200, 255);
@@ -89,8 +89,8 @@ pub trait DisplayStrategy<P: Copy> {
 /// ```
 ///
 /// ```compile_fail
-/// use irys_cv::pixel::Rgb8;
-/// use irys_cv_display::{DisplayStrategy, Identity};
+/// use fovea::pixel::Rgb8;
+/// use fovea_display::{DisplayStrategy, Identity};
 ///
 /// // ERROR: Rgb8 is linear, not sRGB — no Identity impl.
 /// let px = Rgb8::new(128, 64, 200);
@@ -98,8 +98,8 @@ pub trait DisplayStrategy<P: Copy> {
 /// ```
 ///
 /// ```compile_fail
-/// use irys_cv::pixel::Mono16;
-/// use irys_cv_display::{DisplayStrategy, Identity};
+/// use fovea::pixel::Mono16;
+/// use fovea_display::{DisplayStrategy, Identity};
 ///
 /// // ERROR: Mono16 is not an sRGB type — use AutoContrast or FixedRange.
 /// let px = Mono16::new(1000);
@@ -156,8 +156,8 @@ impl DisplayStrategy<SrgbMonoA8> for Identity {
 /// # Examples
 ///
 /// ```
-/// use irys_cv::pixel::{Rgb8, Srgba8};
-/// use irys_cv_display::{DisplayStrategy, LinearToDisplay};
+/// use fovea::pixel::{Rgb8, Srgba8};
+/// use fovea_display::{DisplayStrategy, LinearToDisplay};
 ///
 /// // Black stays black
 /// let px = Rgb8::new(0, 0, 0);
@@ -344,8 +344,8 @@ impl RangeMap {
 /// # Examples
 ///
 /// ```
-/// use irys_cv::pixel::{Mono16, Srgba8};
-/// use irys_cv_display::{DisplayStrategy, AutoContrast};
+/// use fovea::pixel::{Mono16, Srgba8};
+/// use fovea_display::{DisplayStrategy, AutoContrast};
 ///
 /// let ac = AutoContrast::new(0.0, 65535.0);
 /// assert_eq!(ac.to_display(&Mono16::new(0)), Srgba8::new(0, 0, 0, 255));
@@ -386,9 +386,9 @@ impl AutoContrast {
     /// # Examples
     ///
     /// ```
-    /// use irys_cv::image::{Image, ImageView};
-    /// use irys_cv::pixel::{MonoF32, Srgba8};
-    /// use irys_cv_display::{DisplayStrategy, AutoContrast};
+    /// use fovea::image::{Image, ImageView};
+    /// use fovea::pixel::{MonoF32, Srgba8};
+    /// use fovea_display::{DisplayStrategy, AutoContrast};
     ///
     /// // ADR-0044 Phase E: pixel role for floats is `MonoF32`, not `f32`.
     /// let img = Image::<MonoF32>::fill(4, 4, MonoF32::new(0.5));
@@ -413,9 +413,9 @@ impl AutoContrast {
     /// # Examples
     ///
     /// ```
-    /// use irys_cv::image::{Image, ImageView, ImageViewMut};
-    /// use irys_cv::pixel::{Mono16, Srgba8};
-    /// use irys_cv_display::{DisplayStrategy, AutoContrast};
+    /// use fovea::image::{Image, ImageView, ImageViewMut};
+    /// use fovea::pixel::{Mono16, Srgba8};
+    /// use fovea_display::{DisplayStrategy, AutoContrast};
     ///
     /// let mut img = Image::<Mono16>::fill(4, 4, Mono16::new(100));
     /// *img.get_mut(0, 0).unwrap() = Mono16::new(50);
@@ -579,8 +579,8 @@ impl<const BITS: usize> DisplayStrategy<Mono<BITS>> for AutoContrast {
 /// # Examples
 ///
 /// ```
-/// use irys_cv::pixel::{Mono16, Srgba8};
-/// use irys_cv_display::{DisplayStrategy, FixedRange};
+/// use fovea::pixel::{Mono16, Srgba8};
+/// use fovea_display::{DisplayStrategy, FixedRange};
 ///
 /// let fr = FixedRange::new(100.0, 200.0);
 /// assert_eq!(fr.to_display(&Mono16::new(100)), Srgba8::new(0, 0, 0, 255));
@@ -754,8 +754,8 @@ impl Framebuffer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use irys_cv::image::{Image, ImageViewMut, SubView};
-    use irys_cv::pixel::*;
+    use fovea::image::{Image, ImageViewMut, SubView};
+    use fovea::pixel::*;
 
     // ── Identity tests ─────────────────────────────────────────────────
 
@@ -1269,7 +1269,7 @@ mod tests {
         *img.get_mut(2, 2).unwrap() = Srgba8::new(255, 255, 255, 255);
 
         let roi = img
-            .roi(irys_cv::Rectangle::new((1usize, 1usize), (2usize, 2usize)))
+            .roi(fovea::Rectangle::new((1usize, 1usize), (2usize, 2usize)))
             .unwrap();
         let fb = Framebuffer::from_image(&roi, Identity);
         assert_eq!(fb.width, 2);

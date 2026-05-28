@@ -11,7 +11,7 @@ default = []
 debug-window = ["dep:winit", "dep:softbuffer"]
 
 [dependencies]
-fovea = { version = "0.1.0" }
+fovea = { version = "0.1.0", path = "../fovea" }
 log = "0.4"
 winit = { version = "0.30", optional = true }
 softbuffer = { version = "0.4", optional = true }
