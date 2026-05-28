@@ -1,7 +1,7 @@
 //! Debug window system for quick image visualization.
 //!
 //! This module provides an OpenCV-like `imshow` experience for Rust:
-//! display any [`ImageView`](irys_cv::image::ImageView) in a window with a single
+//! display any [`ImageView`](fovea::image::ImageView) in a window with a single
 //! function call. It is gated behind the `debug-window` feature flag and
 //! is **not intended for production use**.
 //!
@@ -23,9 +23,9 @@
 //! ## One-shot display
 //!
 //! ```no_run
-//! use irys_cv_display::{show, Identity};
-//! use irys_cv::image::Image;
-//! use irys_cv::pixel::Srgb8;
+//! use fovea_display::{show, Identity};
+//! use fovea::image::Image;
+//! use fovea::pixel::Srgb8;
 //!
 //! let img = Image::fill(100, 100, Srgb8::new(128, 64, 200));
 //! show("Preview", &img, Identity);
@@ -34,9 +34,9 @@
 //! ## Multi-window with `DebugDisplay::run()`
 //!
 //! ```no_run
-//! use irys_cv_display::{DebugDisplay, DisplayContext, AutoContrast, Identity};
-//! use irys_cv::image::Image;
-//! use irys_cv::pixel::{Mono16, Srgba8};
+//! use fovea_display::{DebugDisplay, DisplayContext, AutoContrast, Identity};
+//! use fovea::image::Image;
+//! use fovea::pixel::{Mono16, Srgba8};
 //!
 //! DebugDisplay::run(|ctx| {
 //!     let mono = Image::<Mono16>::zero(640, 480);
@@ -89,7 +89,7 @@ use winit::keyboard::{KeyCode, PhysicalKey};
 use winit::platform::run_on_demand::EventLoopExtRunOnDemand;
 use winit::window::{Window, WindowAttributes, WindowId};
 
-use irys_cv::image::ImageView;
+use fovea::image::ImageView;
 
 use crate::strategy::{DisplayStrategy, Framebuffer};
 
@@ -165,9 +165,9 @@ impl Notifier {
 /// # Examples
 ///
 /// ```no_run
-/// use irys_cv_display::{DebugDisplay, Identity};
-/// use irys_cv::image::Image;
-/// use irys_cv::pixel::Srgba8;
+/// use fovea_display::{DebugDisplay, Identity};
+/// use fovea::image::Image;
+/// use fovea::pixel::Srgba8;
 ///
 /// DebugDisplay::run(|ctx| {
 ///     let img = Image::fill(100, 100, Srgba8::new(255, 0, 0, 255));
@@ -242,9 +242,9 @@ impl DisplayContext {
     /// # Examples
     ///
     /// ```no_run
-    /// use irys_cv_display::{DebugDisplay, Identity};
-    /// use irys_cv::image::Image;
-    /// use irys_cv::pixel::Srgba8;
+    /// use fovea_display::{DebugDisplay, Identity};
+    /// use fovea::image::Image;
+    /// use fovea::pixel::Srgba8;
     ///
     /// DebugDisplay::run(|ctx| {
     ///     let img = Image::fill(100, 100, Srgba8::new(0, 255, 0, 255));
@@ -349,9 +349,9 @@ impl DebugDisplay {
     /// # Examples
     ///
     /// ```no_run
-    /// use irys_cv_display::{DebugDisplay, AutoContrast, Identity};
-    /// use irys_cv::image::Image;
-    /// use irys_cv::pixel::Srgba8;
+    /// use fovea_display::{DebugDisplay, AutoContrast, Identity};
+    /// use fovea::image::Image;
+    /// use fovea::pixel::Srgba8;
     ///
     /// DebugDisplay::run(|ctx| {
     ///     let img = Image::fill(640, 480, Srgba8::new(128, 64, 200, 255));
@@ -726,9 +726,9 @@ fn scale_blit(src: &Framebuffer, dst: &mut [u32], dst_w: u32, dst_h: u32) {
 /// # Examples
 ///
 /// ```no_run
-/// use irys_cv_display::{show, Identity};
-/// use irys_cv::image::Image;
-/// use irys_cv::pixel::Srgb8;
+/// use fovea_display::{show, Identity};
+/// use fovea::image::Image;
+/// use fovea::pixel::Srgb8;
 ///
 /// let img = Image::fill(100, 100, Srgb8::new(128, 64, 200));
 /// show("Preview", &img, Identity);
@@ -812,8 +812,8 @@ mod tests {
     use super::*;
     use crate::Identity;
     use crate::strategy::Framebuffer;
-    use irys_cv::image::Image;
-    use irys_cv::pixel::Srgba8;
+    use fovea::image::Image;
+    use fovea::pixel::Srgba8;
 
     /// Helper: create a `DisplayContext` with mock channels.
     ///

@@ -4,20 +4,20 @@
 //! histograms during development. It is gated behind the `debug-window`
 //! feature flag and is **not intended for production use**.
 //!
-//! Histograms produced by [`irys_cv::analyze::histogram::histogram()`]
+//! Histograms produced by [`fovea::analyze::histogram::histogram()`]
 //! carry a `bins()` slice that is strategy-independent — that is the
 //! only datum the renderer needs. One or more histograms are
-//! rasterised into a small [`Srgba8`](irys_cv::pixel::Srgba8) bar-chart
+//! rasterised into a small [`Srgba8`](fovea::pixel::Srgba8) bar-chart
 //! image and handed off to the same [`Framebuffer`] / event-loop
 //! pipeline as [`crate::show`].
 //!
 //! # Single histogram
 //!
 //! ```no_run
-//! use irys_cv::analyze::histogram::{histogram, Histogram, NaturalBins};
-//! use irys_cv::image::Image;
-//! use irys_cv::pixel::Mono8;
-//! use irys_cv_display::debug_histogram;
+//! use fovea::analyze::histogram::{histogram, Histogram, NaturalBins};
+//! use fovea::image::Image;
+//! use fovea::pixel::Mono8;
+//! use fovea_display::debug_histogram;
 //!
 //! let img = Image::<Mono8>::zero(64, 64);
 //! let h: Histogram<NaturalBins, _> = histogram(&img, &NaturalBins).unwrap();
@@ -33,10 +33,10 @@
 //! linear vs. log) can be compared side-on-side.
 //!
 //! ```no_run
-//! use irys_cv::analyze::histogram::{histogram, Histogram, NaturalBins};
-//! use irys_cv::image::Image;
-//! use irys_cv::pixel::{Rgb8, Srgba8};
-//! use irys_cv_display::{debug_histogram_layers, HistogramLayer, HistogramPlotOptions};
+//! use fovea::analyze::histogram::{histogram, Histogram, NaturalBins};
+//! use fovea::image::Image;
+//! use fovea::pixel::{Rgb8, Srgba8};
+//! use fovea_display::{debug_histogram_layers, HistogramLayer, HistogramPlotOptions};
 //!
 //! let img = Image::<Rgb8>::zero(64, 64);
 //! let chans: [Histogram<NaturalBins, _>; 3] =
@@ -50,9 +50,9 @@
 //! debug_histogram_layers("RGB histogram", &layers, &HistogramPlotOptions::default());
 //! ```
 
-use irys_cv::analyze::histogram::Histogram;
-use irys_cv::image::{Image, ImageViewMut};
-use irys_cv::pixel::Srgba8;
+use fovea::analyze::histogram::Histogram;
+use fovea::image::{Image, ImageViewMut};
+use fovea::pixel::Srgba8;
 
 use crate::DisplayContext;
 use crate::strategy::{Framebuffer, Identity};
@@ -474,9 +474,9 @@ impl DisplayContext {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use irys_cv::analyze::histogram::{NaturalBins, histogram};
-    use irys_cv::image::ImageView;
-    use irys_cv::pixel::Mono8;
+    use fovea::analyze::histogram::{NaturalBins, histogram};
+    use fovea::image::ImageView;
+    use fovea::pixel::Mono8;
 
     fn build_hist() -> Histogram<NaturalBins, std::num::Saturating<u8>> {
         // 4×4 image with one pixel at value 0 and the rest at 255.

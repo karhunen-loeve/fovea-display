@@ -1,9 +1,9 @@
-//! # irys-cv-display
+//! # fovea-display
 //!
-//! Display and debug visualization for irys-cv images.
+//! Display and debug visualization for fovea images.
 //!
 //! This crate provides:
-//! - **Display traits** — strategy-based conversion of any [`ImageView`](irys_cv::image::ImageView)
+//! - **Display traits** — strategy-based conversion of any [`ImageView`](fovea::image::ImageView)
 //!   to a displayable format.
 //! - **GPU integration traits** — texture format descriptors and byte access for rendering
 //!   pipelines (always available, no GPU dependency).
@@ -21,9 +21,9 @@
 //! The simplest way to inspect an image during development:
 //!
 //! ```no_run
-//! use irys_cv::image::Image;
-//! use irys_cv::pixel::Srgb8;
-//! use irys_cv_display::{show, Identity};
+//! use fovea::image::Image;
+//! use fovea::pixel::Srgb8;
+//! use fovea_display::{show, Identity};
 //!
 //! let img = Image::fill(320, 240, Srgb8::new(128, 64, 200));
 //! show("Preview", &img, Identity);
@@ -32,9 +32,9 @@
 //! For multiple windows or interactive workflows, use [`DebugDisplay::run()`]:
 //!
 //! ```no_run
-//! use irys_cv::image::Image;
-//! use irys_cv::pixel::Srgba8;
-//! use irys_cv_display::{DebugDisplay, Identity};
+//! use fovea::image::Image;
+//! use fovea::pixel::Srgba8;
+//! use fovea_display::{DebugDisplay, Identity};
 //!
 //! DebugDisplay::run(|ctx| {
 //!     let img = Image::fill(320, 240, Srgba8::new(255, 0, 0, 255));
@@ -70,7 +70,7 @@
 //! ## Design principles
 //!
 //! - **Conversions are named.** Every pixel type requires an explicit
-//!   [`DisplayStrategy`] to become displayable. This follows irys-cv's
+//!   [`DisplayStrategy`] to become displayable. This follows fovea's
 //!   core philosophy.
 //!
 //! - **`ImageView` is the display bound.** The [`show()`] function accepts
@@ -84,7 +84,7 @@
 //!   first.
 //!
 //! - **sRGB correctness via types.** [`Identity`] only accepts `Srgb*`
-//!   types. Linear [`Rgb8`](irys_cv::pixel::Rgb8) requires
+//!   types. Linear [`Rgb8`](fovea::pixel::Rgb8) requires
 //!   [`LinearToDisplay`]. The compiler catches double-gamma errors.
 
 mod pixel;

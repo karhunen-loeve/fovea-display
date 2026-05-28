@@ -5,7 +5,7 @@
 //! - [`TextureFormat`] — exhaustive enum of GPU texture format descriptors.
 //! - [`GpuPixel`] — maps pixel types to their GPU texture format.
 
-use irys_cv::pixel::{
+use fovea::pixel::{
     Bgra8, Mono8, Mono16, MonoA8, MonoA16, MonoAF32, MonoF32, PlainPixel, Rgba8, Rgba16, RgbaF32,
     SrgbMono8, Srgba8,
 };
@@ -15,7 +15,7 @@ use irys_cv::pixel::{
 // TextureFormat byte-count consistency); non-test code paths use
 // `<T as PlainChannel>::SIZE` explicitly where needed.
 #[cfg(test)]
-use irys_cv::pixel::PlainChannel;
+use fovea::pixel::PlainChannel;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 1.1 — DisplayPixel (sealed)
@@ -43,8 +43,8 @@ mod sealed {
 /// # Examples
 ///
 /// ```
-/// use irys_cv::pixel::Srgba8;
-/// use irys_cv_display::DisplayPixel;
+/// use fovea::pixel::Srgba8;
+/// use fovea_display::DisplayPixel;
 ///
 /// let px = Srgba8::new(255, 128, 0, 255);
 /// assert_eq!(px.to_framebuffer_u32(), 0x00FF8000);
@@ -72,7 +72,7 @@ impl DisplayPixel for Srgba8 {
 // 1.2 — TextureFormat enum
 // ═══════════════════════════════════════════════════════════════════════════════
 
-/// Exhaustive GPU texture format descriptors for irys-cv pixel types.
+/// Exhaustive GPU texture format descriptors for fovea pixel types.
 ///
 /// This enum is always available (no feature flag required). It is a pure
 /// Rust data type that downstream consumers (egui, bevy, raw Vulkan, wgpu)
@@ -84,20 +84,20 @@ impl DisplayPixel for Srgba8 {
 ///
 /// - **No 3-channel formats.** GPU APIs generally do not support 3-channel
 ///   textures (`Rgb8`, `Bgr8`, `RgbF32`). Users must convert to 4-channel
-///   before GPU upload. This is explicit per irys-cv Philosophy #4.
+///   before GPU upload. This is explicit per fovea Philosophy #4.
 ///
 /// - **`R8Srgb` included.** Not all GPU APIs support `R8_SRGB` (WebGPU/wgpu
 ///   notably do not), but the enum models the *logical* format. Downstream
 ///   integrations that target such an API should map `R8Srgb` to the
 ///   nearest available format (typically `R8Unorm`).
 ///
-/// - **`Bgra8Srgb` reserved.** irys-cv has no `SrgbBgra8` type today, but
+/// - **`Bgra8Srgb` reserved.** fovea has no `SrgbBgra8` type today, but
 ///   the format is common in GPU APIs. Included for forward-compatibility.
 ///
 /// # Examples
 ///
 /// ```
-/// use irys_cv_display::TextureFormat;
+/// use fovea_display::TextureFormat;
 ///
 /// let fmt = TextureFormat::Rgba8Srgb;
 /// assert_eq!(fmt.bytes_per_pixel(), 4);
@@ -139,7 +139,7 @@ impl TextureFormat {
     /// # Examples
     ///
     /// ```
-    /// use irys_cv_display::TextureFormat;
+    /// use fovea_display::TextureFormat;
     ///
     /// assert_eq!(TextureFormat::R8Unorm.bytes_per_pixel(), 1);
     /// assert_eq!(TextureFormat::Rg16Unorm.bytes_per_pixel(), 4);
@@ -178,7 +178,7 @@ impl TextureFormat {
     /// # Examples
     ///
     /// ```
-    /// use irys_cv_display::TextureFormat;
+    /// use fovea_display::TextureFormat;
     ///
     /// assert_eq!(TextureFormat::R8Unorm.channel_count(), 1);
     /// assert_eq!(TextureFormat::Rg8Unorm.channel_count(), 2);
@@ -219,15 +219,15 @@ impl TextureFormat {
 /// # Examples
 ///
 /// ```
-/// use irys_cv::pixel::Srgba8;
-/// use irys_cv_display::{GpuPixel, TextureFormat};
+/// use fovea::pixel::Srgba8;
+/// use fovea_display::{GpuPixel, TextureFormat};
 ///
 /// assert_eq!(Srgba8::TEXTURE_FORMAT, TextureFormat::Rgba8Srgb);
 /// ```
 ///
 /// ```compile_fail
-/// use irys_cv::pixel::Rgb8;
-/// use irys_cv_display::GpuPixel;
+/// use fovea::pixel::Rgb8;
+/// use fovea_display::GpuPixel;
 ///
 /// // ERROR: Rgb8 does not implement GpuPixel — 3-channel types have
 /// // no direct GPU representation. Convert to Rgba8 first.
@@ -235,8 +235,8 @@ impl TextureFormat {
 /// ```
 ///
 /// ```compile_fail
-/// use irys_cv::pixel::Bgr8;
-/// use irys_cv_display::GpuPixel;
+/// use fovea::pixel::Bgr8;
+/// use fovea_display::GpuPixel;
 ///
 /// // ERROR: Bgr8 does not implement GpuPixel — 3-channel types have
 /// // no direct GPU representation. Convert to Bgra8 first.
@@ -244,8 +244,8 @@ impl TextureFormat {
 /// ```
 ///
 /// ```compile_fail
-/// use irys_cv::pixel::RgbF32;
-/// use irys_cv_display::GpuPixel;
+/// use fovea::pixel::RgbF32;
+/// use fovea_display::GpuPixel;
 ///
 /// // ERROR: RgbF32 does not implement GpuPixel — 3-channel types have
 /// // no direct GPU representation. Convert to RgbaF32 first.

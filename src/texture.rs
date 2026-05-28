@@ -2,7 +2,7 @@
 //!
 //! This module defines [`TextureSource`], a trait that combines texture format
 //! metadata with byte-level access to pixel data. It is blanket-implemented
-//! for any [`PlainImage`](irys_cv::image::PlainImage) image whose pixel type implements
+//! for any [`PlainImage`](fovea::image::PlainImage) image whose pixel type implements
 //! [`GpuPixel`](crate::GpuPixel).
 //!
 //! # Design note: `bytes_per_row` alignment
@@ -13,8 +13,8 @@
 //! [`TextureSource::bytes_per_row`] reports the *logical* bytes per row
 //! (width × pixel size), with no padding.
 
-use irys_cv::image::PlainImage;
-use irys_cv::pixel::PlainChannel;
+use fovea::image::PlainImage;
+use fovea::pixel::PlainChannel;
 
 use crate::pixel::{GpuPixel, TextureFormat};
 
@@ -39,9 +39,9 @@ use crate::pixel::{GpuPixel, TextureFormat};
 /// # Examples
 ///
 /// ```
-/// use irys_cv::image::{Image, PlainImage};
-/// use irys_cv::pixel::Srgba8;
-/// use irys_cv_display::{TextureSource, TextureFormat};
+/// use fovea::image::{Image, PlainImage};
+/// use fovea::pixel::Srgba8;
+/// use fovea_display::{TextureSource, TextureFormat};
 ///
 /// let img = Image::fill(16, 8, Srgba8::new(255, 0, 0, 255));
 /// assert_eq!(img.texture_format(), TextureFormat::Rgba8Srgb);
@@ -52,9 +52,9 @@ use crate::pixel::{GpuPixel, TextureFormat};
 /// ```
 ///
 /// ```compile_fail
-/// use irys_cv::image::Image;
-/// use irys_cv::pixel::Rgb8;
-/// use irys_cv_display::TextureSource;
+/// use fovea::image::Image;
+/// use fovea::pixel::Rgb8;
+/// use fovea_display::TextureSource;
 ///
 /// // ERROR: Rgb8 does not implement GpuPixel — 3-channel types have
 /// // no direct GPU representation. Convert to Rgba8 first.
@@ -123,8 +123,8 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use irys_cv::image::{Image, ImageArray};
-    use irys_cv::pixel::*;
+    use fovea::image::{Image, ImageArray};
+    use fovea::pixel::*;
 
     // ── Image<Mono8> ─────────────────────────────────────────────────
 
@@ -182,7 +182,7 @@ mod tests {
         // not raw `f32`. `MonoF32` is `#[repr(transparent)]` over
         // `f32`, so the resulting texture layout is identical
         // (4-byte R32Float per pixel).
-        let img = Image::<irys_cv::pixel::MonoF32>::zero(8, 4);
+        let img = Image::<fovea::pixel::MonoF32>::zero(8, 4);
         assert_eq!(img.texture_format(), TextureFormat::R32Float);
         assert_eq!(img.texture_width(), 8);
         assert_eq!(img.texture_height(), 4);
