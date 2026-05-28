@@ -5,3 +5,13 @@ edition = "2024"
 license = "MIT"
 description = "Display and debug visualization for fovea images"
 repository = "https://github.com/karhunen-loeve/fovea-display"
+
+[features]
+default = []
+debug-window = ["dep:winit", "dep:softbuffer"]
+
+[dependencies]
+fovea = { version = "0.1.0" }
+log = "0.4"
+winit = { version = "0.30", optional = true }
+softbuffer = { version = "0.4", optional = true }
