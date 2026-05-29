@@ -2,21 +2,21 @@
 
 [![Crates.io](https://img.shields.io/crates/v/fovea-display.svg)](https://crates.io/crates/fovea-display)
 [![Documentation](https://docs.rs/fovea-display/badge.svg)](https://docs.rs/fovea-display)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/karhunen-loeve/fovea-display/blob/main/LICENSE)
 
 `fovea-display` provides display strategies, GPU texture metadata, and optional debug windows for [`fovea`](https://github.com/karhunen-loeve/fovea) images.
 
 ```toml
 [dependencies]
-fovea = "0.1.0"
-fovea-display = "0.1.0"
+fovea = "0.1.1"
+fovea-display = "0.1.1"
 ```
 
 Enable the development-only window viewer with:
 
 ```toml
 [dependencies]
-fovea-display = { version = "0.1.0", features = ["debug-window"] }
+fovea-display = { version = "0.1.1", features = ["debug-window"] }
 ```
 
 ## Features
@@ -76,4 +76,4 @@ Every display operation names how image data becomes screen-ready RGBA pixels. T
 
 ## License
 
-Licensed under the [MIT License](LICENSE).
+Licensed under the [MIT License](https://github.com/karhunen-loeve/fovea-display/blob/main/LICENSE).

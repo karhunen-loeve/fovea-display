@@ -1,18 +1,36 @@
 [package]
-name = "fovea-display"
-version = "0.1.0"
-edition = "2024"
-license = "MIT"
-readme = "README.md"
-description = "Display and debug visualization for fovea images"
-repository = "https://github.com/karhunen-loeve/fovea-display"
+name                   = "fovea-display"
+description            = "Display strategies, GPU texture metadata, and debug windows for fovea images"
+version.workspace      = true
+edition.workspace      = true
+rust-version.workspace = true
+license.workspace      = true
+authors.workspace      = true
+readme                 = "README.md"
+repository             = "https://github.com/karhunen-loeve/fovea-display"
+homepage               = "https://github.com/karhunen-loeve/fovea-display"
+documentation          = "https://docs.rs/fovea-display"
+keywords               = ["image", "display", "window", "preview", "fovea"]
+categories             = ["graphics", "rendering", "visualization"]
+include = [
+    "src/**/*.rs",
+    "tests/**/*.rs",
+    "Cargo.toml",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
-default = []
+default      = []
 debug-window = ["dep:winit", "dep:softbuffer"]
 
 [dependencies]
-fovea = { version = "0.1.0", path = "../fovea" }
-log = "0.4"
-winit = { version = "0.30", optional = true }
+fovea      = { version = "0.1.1", path = "../fovea" }
+log        = "0.4"
+winit      = { version = "0.30", optional = true }
 softbuffer = { version = "0.4", optional = true }

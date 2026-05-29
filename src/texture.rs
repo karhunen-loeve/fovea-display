@@ -112,10 +112,10 @@ where
 
     #[inline]
     fn bytes_per_row(&self) -> u32 {
-        // ADR-0046: `SIZE` lives on `PlainChannel` (inherited by
-        // `PlainPixel` via the supertrait relation). The bound on
-        // `T::Pixel` is still `PlainPixel`; we just resolve the
-        // constant through the byte-layout role.
+        // `SIZE` lives on `PlainChannel` (inherited by `PlainPixel`
+        // via the supertrait relation). The bound on `T::Pixel` is
+        // still `PlainPixel`; we just resolve the constant through the
+        // byte-layout role.
         (self.size().width * <T::Pixel as PlainChannel>::SIZE) as u32
     }
 }
@@ -178,7 +178,7 @@ mod tests {
 
     #[test]
     fn image2d_f32_texture_source() {
-        // ADR-0044 Phase E: the pixel role for floats is `MonoF32`,
+        // the pixel role for floats is `MonoF32`,
         // not raw `f32`. `MonoF32` is `#[repr(transparent)]` over
         // `f32`, so the resulting texture layout is identical
         // (4-byte R32Float per pixel).

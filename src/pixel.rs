@@ -9,10 +9,10 @@ use fovea::pixel::{
     Bgra8, Mono8, Mono16, MonoA8, MonoA16, MonoAF32, MonoF32, PlainPixel, Rgba8, Rgba16, RgbaF32,
     SrgbMono8, Srgba8,
 };
-// ADR-0046: byte-layout items (`SIZE`, `ALIGN`, `as_bytes`,
-// `from_bytes`) live on `PlainChannel`, not `PlainPixel`. Only the
-// in-crate tests reference `SIZE` directly (to assert GpuPixel <->
-// TextureFormat byte-count consistency); non-test code paths use
+// Byte-layout items (`SIZE`, `ALIGN`, `as_bytes`, `from_bytes`) live
+// on `PlainChannel`, not `PlainPixel`. Only the in-crate tests
+// reference `SIZE` directly (to assert GpuPixel <-> TextureFormat
+// byte-count consistency); non-test code paths use
 // `<T as PlainChannel>::SIZE` explicitly where needed.
 #[cfg(test)]
 use fovea::pixel::PlainChannel;
@@ -292,7 +292,7 @@ impl GpuPixel for Rgba16 {
     const TEXTURE_FORMAT: TextureFormat = TextureFormat::Rgba16Unorm;
 }
 
-// ADR-0044 Phase E: `f32` is no longer a pixel. The
+// `f32` is no longer a pixel. The
 // single-channel 32-bit float GPU format is carried by `MonoF32`,
 // whose `#[repr(transparent)]` layout over `f32` is
 // byte-identical to the previous bare-float impl.
