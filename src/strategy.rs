@@ -390,7 +390,7 @@ impl AutoContrast {
     /// use fovea::pixel::{MonoF32, Srgba8};
     /// use fovea_display::{DisplayStrategy, AutoContrast};
     ///
-    /// // ADR-0044 Phase E: pixel role for floats is `MonoF32`, not `f32`.
+    /// // pixel role for floats is `MonoF32`, not `f32`.
     /// let img = Image::<MonoF32>::fill(4, 4, MonoF32::new(0.5));
     /// let ac = AutoContrast::scan(&img);
     /// // Constant image → degenerate range → mid-gray
@@ -697,7 +697,7 @@ impl Framebuffer {
     /// Iterates pixels row-by-row, applies the strategy to produce
     /// [`Srgba8`], then packs each result into `0x00RRGGBB` via
     /// [`DisplayPixel::to_framebuffer_u32()`].
-    pub fn from_image<V, S>(image: &V, strategy: S) -> Self
+    pub(crate) fn from_image<V, S>(image: &V, strategy: S) -> Self
     where
         V: ImageView,
         V::Pixel: Copy,
@@ -729,7 +729,7 @@ impl Framebuffer {
     ///
     /// Panics if `data.len() != width * height`.
     #[allow(dead_code)]
-    pub fn from_raw(width: u32, height: u32, data: Vec<u32>) -> Self {
+    pub(crate) fn from_raw(width: u32, height: u32, data: Vec<u32>) -> Self {
         assert_eq!(
             data.len(),
             (width as usize) * (height as usize),
