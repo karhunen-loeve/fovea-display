@@ -1056,7 +1056,7 @@ mod tests {
         *img.get_mut(0, 0).unwrap() = Mono16::new(50);
         *img.get_mut(3, 3).unwrap() = Mono16::new(200);
 
-        let ac = AutoContrast::scan_with(&img, |p| mono16_to_f64(p));
+        let ac = AutoContrast::scan_with(&img, mono16_to_f64);
         assert_eq!(ac.to_display(&Mono16::new(50)), Srgba8::new(0, 0, 0, 255));
         assert_eq!(
             ac.to_display(&Mono16::new(200)),
