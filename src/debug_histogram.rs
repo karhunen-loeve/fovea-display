@@ -21,7 +21,7 @@
 //!
 //! let img = Image::<Mono8>::zero(64, 64);
 //! let h: Histogram<NaturalBins, _> = histogram(&img, &NaturalBins).unwrap();
-//! debug_histogram("Cameraman histogram", &h);
+//! debug_histogram("Sample histogram", &h);
 //! ```
 //!
 //! # Multiple translucent layers in one window
