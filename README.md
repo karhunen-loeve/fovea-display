@@ -4,7 +4,13 @@
 [![Documentation](https://docs.rs/fovea-display/badge.svg)](https://docs.rs/fovea-display)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/karhunen-loeve/fovea-display/blob/main/LICENSE)
 
-`fovea-display` provides display strategies, GPU texture metadata, and optional debug windows for [`fovea`](https://github.com/karhunen-loeve/fovea) images.
+`fovea-display` turns typed fovea images into display-ready pixels without hiding the decision of how values should be mapped to a screen.
+
+That matters because a `Mono16` inspection frame, a linear `RgbF32` render target, and an already encoded `Srgb8` image need different display policies. This crate makes that policy explicit with display strategies.
+
+## Install
+
+Core display conversion has no windowing dependency:
 
 ```toml
 [dependencies]
@@ -12,7 +18,7 @@ fovea = "0.1.1"
 fovea-display = "0.1.1"
 ```
 
-Enable the development-only window viewer with:
+Enable local debug windows only when you want interactive inspection during development:
 
 ```toml
 [dependencies]
@@ -21,14 +27,21 @@ fovea-display = { version = "0.1.1", features = ["debug-window"] }
 
 ## Features
 
-| Feature | Enabled APIs | Dependencies | Intended use |
-|---|---|---|---|
-| *(default)* | `DisplayStrategy`, `Identity`, `LinearToDisplay`, `AutoContrast`, `TextureSource` | `fovea`, `log` | Conversion and rendering integration without a windowing dependency. |
-| `debug-window` | `show`, `DebugDisplay`, histogram debug windows | `winit`, `softbuffer` | Quick local inspection during development. |
+| Feature | APIs | Intended use |
+|---|---|---|
+| *(default)* | `DisplayStrategy`, `Identity`, `LinearToDisplay`, `AutoContrast`, `FixedRange`, `TextureSource` | Convert typed images for a renderer or GUI without depending on a windowing stack. |
+| `debug-window` | `show`, `DebugDisplay`, histogram debug windows | Quick local inspection of images and histograms while developing. |
 
-## Quick start
+## Pick a display strategy
 
-Convert a typed fovea pixel to a display-ready `Srgba8` value with an explicit strategy:
+Every display operation names how image data becomes `Srgba8` screen pixels.
+
+| Strategy | Use when |
+|---|---|
+| `Identity` | Pixels are already display-encoded sRGB. |
+| `LinearToDisplay` | Pixels are linear-light and need sRGB gamma encoding. |
+| `AutoContrast` | You are debugging high-bit-depth or float data and want to see its current range. |
+| `FixedRange` | You know the numeric range that should map to black/white. |
 
 ```rust
 use fovea::pixel::{Srgb8, Srgba8};
@@ -40,39 +53,49 @@ let display = Identity.to_display(&px);
 assert_eq!(display, Srgba8::new(128, 64, 200, 255));
 ```
 
-With the `debug-window` feature enabled, inspect an image interactively:
+## Preview an image during development
 
 ```rust,ignore
 use fovea::image::Image;
 use fovea::pixel::Srgb8;
-use fovea_display::{show, Identity};
+use fovea_display::{Identity, show};
 
 let img = Image::fill(320, 240, Srgb8::new(128, 64, 200));
 show("Preview", &img, Identity);
 ```
 
-## Display strategies
+For linear or high-bit-depth data, do not use `Identity`. Choose the strategy that describes the display mapping:
 
-Every display operation names how image data becomes screen-ready RGBA pixels. There is no silent default mapping for high-bit-depth, linear-light, or HDR data.
+```rust,ignore
+use fovea::image::Image;
+use fovea::pixel::Mono16;
+use fovea_display::{AutoContrast, show};
 
-| Strategy | Use case |
+let img = Image::generate(512, 512, |x, y| Mono16::new((x + y) as u16));
+let strategy = AutoContrast::scan(&img);
+show("Auto-contrast", &img, strategy);
+```
+
+## GPU and renderer integration
+
+`TextureSource` is for renderer boundaries. It requires the stronger `PlainImage`/contiguous-byte-access path because GPU upload needs a stable memory layout, not just random pixel access.
+
+Use `DisplayStrategy` when you need to decide what values should be shown. Use `TextureSource` when you need to hand bytes and texture metadata to a renderer.
+
+## When NOT to use fovea-display
+
+- You need a full GUI toolkit: use `egui`, `iced`, `winit`, or your application framework.
+- You need video playback: use a media pipeline.
+- You need color-management policy for a production display system: integrate fovea's typed pixels with your chosen color-management stack.
+
+## Crate ecosystem
+
+| Crate | Purpose |
 |---|---|
-| `Identity` | sRGB pixels that are already display encoded. |
-| `LinearToDisplay` | Linear-light pixels that need sRGB gamma encoding for a standard display. |
-| `AutoContrast` | Scan an image and stretch its value range for debugging or inspection. |
-| `FixedRange` | Map a caller-specified numeric range into display values. |
-
-## Design notes
-
-- `show()` accepts any `ImageView`, so owned images, ROIs, and custom image backends can be displayed.
-- `TextureSource` requires contiguous byte access via `PlainImage`, which is the stronger bound needed for GPU upload.
-- Display conversion is strategy-based to keep colour-space and range decisions explicit.
-
-## Part of the fovea project
-
-- Core crate: [`fovea`](https://github.com/karhunen-loeve/fovea)
-- Codec support: [`fovea-io`](https://github.com/karhunen-loeve/fovea-io)
-- End-to-end demos: [`fovea-examples`](https://github.com/karhunen-loeve/fovea-examples)
+| `fovea` | Core typed image model. |
+| `fovea-io` | PNG/JPEG/BMP file boundaries. |
+| `fovea-display` | Display mappings, texture metadata, and debug windows. |
+| `fovea-examples` | Repo-only examples showing these crates together. |
 
 ## License
 
