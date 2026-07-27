@@ -39,9 +39,8 @@ use crate::pixel::DisplayPixel;
 
 /// Named conversion from any pixel type to [`Srgba8`] for display.
 ///
-/// This follows fovea Philosophy #4: conversions are named, data loss
-/// never happens silently. Every pixel type requires an explicit strategy
-/// to become displayable.
+/// Conversions are named and data loss never happens silently: every pixel
+/// type requires an explicit strategy to become displayable.
 ///
 /// The output is always [`Srgba8`] because displays are sRGB devices.
 ///
@@ -683,7 +682,12 @@ impl<const BITS: usize> DisplayStrategy<Mono<BITS>> for FixedRange {
 /// [`ImageView`]. It can be blitted directly to a `softbuffer::Buffer`.
 ///
 /// This type is crate-private — it is an implementation detail of the
-/// debug window system.
+/// debug window system. Its consumers (`debug_window`, `debug_histogram`)
+/// are gated behind the `debug-window` feature and its own tests are
+/// `cfg(test)`, so without that feature the fields are constructed but
+/// never read; the `allow` keeps a default-feature build warning-free
+/// without duplicating the type behind a `cfg`.
+#[allow(dead_code)]
 pub(crate) struct Framebuffer {
     pub width: u32,
     pub height: u32,
@@ -697,6 +701,7 @@ impl Framebuffer {
     /// Iterates pixels row-by-row, applies the strategy to produce
     /// [`Srgba8`], then packs each result into `0x00RRGGBB` via
     /// [`DisplayPixel::to_framebuffer_u32()`].
+    #[allow(dead_code)]
     pub(crate) fn from_image<V, S>(image: &V, strategy: S) -> Self
     where
         V: ImageView,

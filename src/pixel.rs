@@ -84,7 +84,7 @@ impl DisplayPixel for Srgba8 {
 ///
 /// - **No 3-channel formats.** GPU APIs generally do not support 3-channel
 ///   textures (`Rgb8`, `Bgr8`, `RgbF32`). Users must convert to 4-channel
-///   before GPU upload. This is explicit per fovea Philosophy #4.
+///   before GPU upload, and that conversion is explicit and named.
 ///
 /// - **`R8Srgb` included.** Not all GPU APIs support `R8_SRGB` (WebGPU/wgpu
 ///   notably do not), but the enum models the *logical* format. Downstream

@@ -57,8 +57,8 @@ fn mono16_auto_contrast_end_to_end() {
 
 #[test]
 fn f32_auto_contrast_scan_end_to_end() {
-    // ADR-0044 Phase E: the pixel role for floats is `MonoF32`,
-    // not raw `f32`. `MonoF32` is `#[repr(transparent)]` over `f32`.
+    // The pixel role for floats is `MonoF32`, not raw `f32`.
+    // `MonoF32` is `#[repr(transparent)]` over `f32`.
     let mut img = Image::<MonoF32>::zero(3, 3);
     *img.get_mut(0, 0).unwrap() = MonoF32::new(0.0);
     *img.get_mut(1, 1).unwrap() = MonoF32::new(0.5);
@@ -219,8 +219,8 @@ fn texture_source_image2d_bgra8() {
 
 #[test]
 fn texture_source_image2d_f32() {
-    // ADR-0044 Phase E: `Image<MonoF32>` replaces `Image<f32>` for
-    // the pixel role. `MonoF32` is `#[repr(transparent)]` over `f32`,
+    // `Image<MonoF32>` is the pixel-role form, not `Image<f32>`.
+    // `MonoF32` is `#[repr(transparent)]` over `f32`,
     // so the R32Float texture layout is unchanged.
     let img = Image::<MonoF32>::zero(8, 4);
     assert_eq!(img.texture_format(), TextureFormat::R32Float);
@@ -337,7 +337,7 @@ fn roi_with_identity_strategy() {
 #[test]
 fn roi_with_auto_contrast_strategy() {
     // Create a gradient image.
-    // ADR-0044 Phase E: pixel role for floats is `MonoF32`.
+    // The pixel role for floats is `MonoF32`.
     let mut img = Image::<MonoF32>::zero(10, 10);
     for y in 0..10 {
         for x in 0..10 {
