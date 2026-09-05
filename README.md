@@ -12,17 +12,15 @@ That matters because a `Mono16` inspection frame, a linear `RgbF32` render targe
 
 Core display conversion has no windowing dependency:
 
-```toml
-[dependencies]
-fovea = "0.1.1"
-fovea-display = "0.1.1"
+```sh
+cargo add fovea
+cargo add fovea-display
 ```
 
 Enable local debug windows only when you want interactive inspection during development:
 
-```toml
-[dependencies]
-fovea-display = { version = "0.1.1", features = ["debug-window"] }
+```sh
+cargo add fovea-display --features debug-window
 ```
 
 ## Features
