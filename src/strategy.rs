@@ -12,6 +12,7 @@
 //! | [`LinearToDisplay`] | Linear-light types (applies sRGB gamma)          |
 //! | [`AutoContrast`]    | Scan-based contrast stretching for HDR / deep    |
 //! | [`FixedRange`]      | User-specified value range mapping               |
+//! | [`LogMagnitude`]    | Spectra: the magnitude on a logarithmic scale     |
 //!
 //! # Examples
 //!
@@ -26,8 +27,8 @@
 
 use fovea::image::ImageView;
 use fovea::pixel::{
-    Bgr8, Bgra8, Mono, Mono8, Mono16, Mono32, Mono64, MonoF32, MonoF64, Rgb8, RgbF32, Rgba8,
-    RgbaF32, Srgb8, SrgbMono8, SrgbMonoA8, Srgba8,
+    Bgr8, Bgra8, ComplexF32, ComplexF64, Mono, Mono8, Mono16, Mono32, Mono64, MonoF32, MonoF64,
+    Rgb8, RgbF32, Rgba8, RgbaF32, Srgb8, SrgbMono8, SrgbMonoA8, Srgba8,
 };
 use fovea::transform::{ConvertPixel, SrgbGamma};
 
@@ -673,7 +674,159 @@ impl<const BITS: usize> DisplayStrategy<Mono<BITS>> for FixedRange {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// 2.7  Framebuffer helper type
+// 2.7  LogMagnitude strategy
+// ═══════════════════════════════════════════════════════════════════════════════
+
+mod magnitude {
+    /// The magnitude of a pixel, for [`LogMagnitude`](super::LogMagnitude).
+    pub trait Sealed: Copy {
+        /// `|z|` in `f64`.
+        fn magnitude(&self) -> f64;
+    }
+}
+
+use magnitude::Sealed as _;
+
+/// A pixel whose magnitude [`LogMagnitude`] shows: [`ComplexF32`],
+/// [`ComplexF64`], [`MonoF32`] and [`MonoF64`]. Sealed.
+///
+/// The magnitude of a complex pixel is `|re + im·i|`, that of a real pixel
+/// its absolute value.
+pub trait MagnitudePixel: magnitude::Sealed {}
+
+impl magnitude::Sealed for ComplexF32 {
+    #[inline]
+    fn magnitude(&self) -> f64 {
+        f64::from(self.re).hypot(f64::from(self.im))
+    }
+}
+impl MagnitudePixel for ComplexF32 {}
+
+impl magnitude::Sealed for ComplexF64 {
+    #[inline]
+    fn magnitude(&self) -> f64 {
+        self.re.hypot(self.im)
+    }
+}
+impl MagnitudePixel for ComplexF64 {}
+
+impl magnitude::Sealed for MonoF32 {
+    #[inline]
+    fn magnitude(&self) -> f64 {
+        f64::from(self.0).abs()
+    }
+}
+impl MagnitudePixel for MonoF32 {}
+
+impl magnitude::Sealed for MonoF64 {
+    #[inline]
+    fn magnitude(&self) -> f64 {
+        self.0.abs()
+    }
+}
+impl MagnitudePixel for MonoF64 {}
+
+/// Shows magnitudes on a logarithmic scale: `ln(1 + |z|)`, from black at
+/// zero to white at the largest magnitude of the range.
+///
+/// The view for a spectrum. Its zero frequency is commonly larger than
+/// every other bin by orders of magnitude, so a linear stretch shows a
+/// white dot on black; the logarithm brings the weaker components into
+/// view. Show the complex image of `Spectrum::centered`, or the real one of
+/// `Spectrum::magnitude`; both have the zero frequency in the middle.
+///
+/// Like [`AutoContrast`], the stretched value is encoded with the sRGB
+/// curve. A range without extent, where the largest magnitude is zero,
+/// negative or not finite, shows every pixel mid-gray.
+///
+/// # Examples
+///
+/// ```
+/// use fovea::frequency::{Auto, dft};
+/// use fovea::image::{Image, ImageView};
+/// use fovea::pixel::{MonoF32, Srgba8};
+/// use fovea_display::{DisplayStrategy, LogMagnitude};
+///
+/// let img = Image::generate(64, 64, |x, y| MonoF32::new(((x * y) % 7) as f32));
+/// let shown = dft(&img, Auto).centered();
+/// let strategy = LogMagnitude::scan(&shown);
+///
+/// // An image without negative values has its largest bin at the zero
+/// // frequency, in the middle: white.
+/// let white = Srgba8::new(255, 255, 255, 255);
+/// assert_eq!(strategy.to_display(&shown.pixel_at(32, 32)), white);
+/// ```
+#[derive(Clone, Copy)]
+pub struct LogMagnitude {
+    range: RangeMap,
+}
+
+impl LogMagnitude {
+    /// Shows magnitudes from zero, black, to `max`, white.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fovea::pixel::{ComplexF32, Srgba8};
+    /// use fovea_display::{DisplayStrategy, LogMagnitude};
+    ///
+    /// let strategy = LogMagnitude::new(1000.0);
+    /// assert_eq!(strategy.to_display(&ComplexF32::new(0.0, 0.0)), Srgba8::new(0, 0, 0, 255));
+    /// assert_eq!(strategy.to_display(&ComplexF32::new(600.0, 800.0)), Srgba8::new(255, 255, 255, 255));
+    /// ```
+    #[must_use]
+    pub fn new(max: f64) -> Self {
+        let top = if max > 0.0 && max.is_finite() {
+            max.ln_1p()
+        } else {
+            0.0
+        };
+        LogMagnitude {
+            range: RangeMap::new(0.0, top),
+        }
+    }
+
+    /// Shows magnitudes from zero to the largest finite magnitude in
+    /// `image`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fovea::image::Image;
+    /// use fovea::pixel::{MonoF64, Srgba8};
+    /// use fovea_display::{DisplayStrategy, LogMagnitude};
+    ///
+    /// let img = Image::generate(3, 1, |x, _| MonoF64::new([2.0, -99.0, 40.0][x]));
+    /// let strategy = LogMagnitude::scan(&img);
+    /// assert_eq!(strategy.to_display(&MonoF64::new(-99.0)), Srgba8::new(255, 255, 255, 255));
+    /// ```
+    pub fn scan<V>(image: &V) -> Self
+    where
+        V: ImageView,
+        V::Pixel: MagnitudePixel,
+    {
+        let mut max = 0.0_f64;
+        for y in 0..image.height() {
+            for x in 0..image.width() {
+                let m = image.pixel_at(x, y).magnitude();
+                if m.is_finite() && m > max {
+                    max = m;
+                }
+            }
+        }
+        Self::new(max)
+    }
+}
+
+impl<P: MagnitudePixel> DisplayStrategy<P> for LogMagnitude {
+    #[inline]
+    fn to_display(&self, pixel: &P) -> Srgba8 {
+        self.range.map_to_srgba8(pixel.magnitude().ln_1p())
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2.8  Framebuffer helper type
 // ═══════════════════════════════════════════════════════════════════════════════
 
 /// A width×height buffer of `u32` pixels in `0x00RRGGBB` format.
@@ -1305,5 +1458,72 @@ mod tests {
     #[should_panic(expected = "does not match dimensions")]
     fn framebuffer_from_raw_wrong_size() {
         let _ = Framebuffer::from_raw(2, 2, vec![0, 1, 2]);
+    }
+
+    // ── LogMagnitude tests ─────────────────────────────────────────────
+
+    #[test]
+    fn log_magnitude_runs_from_black_at_zero_to_white_at_the_top() {
+        let s = LogMagnitude::new(100.0);
+        let (black, white) = (Srgba8::new(0, 0, 0, 255), Srgba8::new(255, 255, 255, 255));
+        assert_eq!(s.to_display(&ComplexF32::new(0.0, 0.0)), black);
+        assert_eq!(s.to_display(&ComplexF64::new(0.0, -100.0)), white);
+        assert_eq!(s.to_display(&MonoF32::new(-100.0)), white);
+        assert_eq!(s.to_display(&MonoF64::new(1e9)), white);
+    }
+
+    #[test]
+    fn log_magnitude_is_linear_in_the_logarithm() {
+        // ln(1 + m) is half of ln(1 + 99) for m = 9: shown as the middle of the range.
+        let s = LogMagnitude::new(99.0);
+        let middle = AutoContrast::new(0.0, 1.0).to_display(&0.5_f64);
+        assert_eq!(s.to_display(&MonoF64::new(9.0)), middle);
+    }
+
+    #[test]
+    fn log_magnitude_shows_equal_magnitudes_alike() {
+        let s = LogMagnitude::new(10.0);
+        let five = s.to_display(&MonoF32::new(5.0));
+        assert_eq!(s.to_display(&ComplexF32::new(3.0, 4.0)), five);
+        assert_eq!(s.to_display(&ComplexF64::new(-4.0, 3.0)), five);
+        assert_eq!(s.to_display(&MonoF64::new(-5.0)), five);
+    }
+
+    #[test]
+    fn log_magnitude_scans_the_largest_finite_magnitude() {
+        let img = Image::generate(4, 1, |x, _| {
+            [
+                ComplexF32::new(1.0, 1.0),
+                ComplexF32::new(f32::NAN, 0.0),
+                ComplexF32::new(30.0, 40.0),
+                ComplexF32::new(f32::INFINITY, 0.0),
+            ][x]
+        });
+        let s = LogMagnitude::scan(&img);
+        assert_eq!(
+            s.to_display(&ComplexF32::new(50.0, 0.0)),
+            Srgba8::new(255, 255, 255, 255)
+        );
+        assert_ne!(
+            s.to_display(&ComplexF32::new(25.0, 0.0)),
+            Srgba8::new(255, 255, 255, 255)
+        );
+    }
+
+    #[test]
+    fn log_magnitude_without_a_range_shows_mid_gray() {
+        let gray = Srgba8::new(128, 128, 128, 255);
+        for max in [0.0, -1.0, f64::NAN, f64::INFINITY] {
+            assert_eq!(
+                LogMagnitude::new(max).to_display(&MonoF64::new(3.0)),
+                gray,
+                "{max}"
+            );
+        }
+        let empty = Image::<MonoF32>::zero(0, 4);
+        assert_eq!(
+            LogMagnitude::scan(&empty).to_display(&MonoF32::new(1.0)),
+            gray
+        );
     }
 }

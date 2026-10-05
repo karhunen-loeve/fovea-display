@@ -19,7 +19,10 @@ mod debug_histogram;
 // ── Public re-exports ───────────────────────────────────────────────────────
 
 pub use pixel::{DisplayPixel, GpuPixel, TextureFormat};
-pub use strategy::{AutoContrast, DisplayStrategy, FixedRange, Identity, LinearToDisplay};
+pub use strategy::{
+    AutoContrast, DisplayStrategy, FixedRange, Identity, LinearToDisplay, LogMagnitude,
+    MagnitudePixel,
+};
 pub use texture::TextureSource;
 
 #[cfg(feature = "debug-window")]

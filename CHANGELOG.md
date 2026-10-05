@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`LogMagnitude`**, a display strategy for spectra: it shows
+  `ln(1 + |z|)` from black at zero to white at the largest magnitude,
+  given with `LogMagnitude::new(max)` or found with
+  `LogMagnitude::scan(&image)`, which skips values that are not finite.
+  It shows complex and real pixels, `ComplexF32`, `ComplexF64`, `MonoF32`
+  and `MonoF64`, named by the sealed trait `MagnitudePixel`. Like
+  `AutoContrast`, it encodes the stretched value with the sRGB curve.
+
 ## [0.5.1] — 2026-09-22
 
 Released for ecosystem-version alignment; no functional changes.
