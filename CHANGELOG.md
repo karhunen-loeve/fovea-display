@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] — 2026-10-30
+
 ### Added
 
 - **`LogMagnitude`**, a display strategy for spectra: it shows
@@ -74,6 +76,7 @@ First real public release. `0.1.0` was a name-reservation placeholder.
     `render_histogram_layers`, `HistogramPlotOptions`,
     `HistogramRenderOptions`).
 
+[0.6.0]: https://github.com/karhunen-loeve/fovea-display/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/karhunen-loeve/fovea-display/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/karhunen-loeve/fovea-display/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/karhunen-loeve/fovea-display/compare/v0.3.0...v0.4.0
